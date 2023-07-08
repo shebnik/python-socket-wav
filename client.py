@@ -1,6 +1,8 @@
 import wave
 import socket
 import pyaudio
+import re
+import threading
 
 # Create a socket and connect to the server
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -29,17 +31,18 @@ stream = p.open(
     rate=sample_rate,
     output=True
 )
-
+print(f'Stream started with buffer size: {buffer_size}, sample rate: {sample_rate}, channels: {channels}')
 # Receive and play the audio data
 data = sock.recv(buffer_size)
 while data:
-    if data.startswith(b'settings:'):
-        # Handle settings update
-        new_settings = data.decode().split(':')
-        buffer_size = int(new_settings[1])
-        sample_rate = int(new_settings[2])
-        channels = int(new_settings[3])
-        # Update the audio stream parameters if desired
+    if (b'settings:') in data:
+        print('Received settings update.')
+        encoded_settings = data[data.index(b'settings:'):data.index(b':settings')]
+        settings = encoded_settings.decode().split(':')
+        buffer_size = int(settings[1])
+        sample_rate = int(settings[2])
+        channels = int(settings[3])
+        # Update the audio stream parameters
         stream.stop_stream()
         stream.close()
         stream = p.open(
@@ -48,8 +51,12 @@ while data:
             rate=sample_rate,
             output=True
         )
-    else:
-        stream.write(data)
+        print(f'Updated to buffer size: {buffer_size}, sample rate: {sample_rate}, channels: {channels}')
+        
+        # remove settings from data
+        data = data.replace(encoded_settings, b'')
+        
+    stream.write(data)
     data = sock.recv(buffer_size)
 
 # Cleanup
