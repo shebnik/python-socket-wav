@@ -1,7 +1,7 @@
 import wave
 import socket
 
-# Configure the buffer size and sample rate
+# Configure the initial buffer size and sample rate
 BUFFER_SIZE = 1024
 SAMPLE_RATE = 44100
 
@@ -18,10 +18,11 @@ print('Connected by', addr)
 # Open the wave file
 with wave.open('audio.wav', 'rb') as audio_file:
     # Get the audio file parameters
-    channels = audio_file.getnchannels()  # Update channels variable
+    channels = audio_file.getnchannels()
+    sample_width = audio_file.getsampwidth()
 
-    # Send the buffer size, sample rate, and channels to the client
-    params = f'{BUFFER_SIZE}:{SAMPLE_RATE}:{channels}'.encode()
+    # Send the initial buffer size, sample rate, and channels to the client
+    params = f'settings:{BUFFER_SIZE}:{SAMPLE_RATE}:{channels}'.encode()
     conn.send(params)
 
     # Read and stream the audio data
