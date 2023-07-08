@@ -87,6 +87,7 @@ with wave.open('audio.wav', 'rb') as audio_file:
     data = audio_file.readframes(buffer_size)
     while data:
         # TODO: send header data with new buffer size + audio data with old buffer size
+        # Possible TODO: reduce latency in settings change
         conn.sendall(header_data+data)          
         data = audio_file.readframes(buffer_size)
 

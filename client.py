@@ -44,8 +44,8 @@ while data:
     #     buffer_size, sample_rate, channels, sample_width = struct.unpack(HEADER_FORMAT, data)
     #     print('Received data:', data)
     # except:
-    with open('output.txt', 'a') as f:
-        f.write(f'Buffer size: {buffer_size}, sample rate: {sample_rate}, channels: {channels}, sample width: {sample_width}\n')
+    # with open('output.txt', 'a') as f:
+        # f.write(f'Buffer size: {buffer_size}, sample rate: {sample_rate}, channels: {channels}, sample width: {sample_width}\n')
     data = data[16:]
     stream.write(data)
     data = sock.recv(buffer_size * 4 + 16)
