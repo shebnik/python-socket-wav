@@ -29,28 +29,26 @@ stream = p.open(
 )
 print(f'Stream started with buffer size: {buffer_size}, sample rate: {sample_rate}, channels: {channels}, sample width: {sample_width}')
 # Receive and play the audio data
-data = sock.recv(buffer_size)
+data = sock.recv(buffer_size * 4 + 16)
 while data:
-    # if 
-    #     print('Received settings update.')
-    #     buffer_size =
-    #     sample_rate =
-    #     channels =
-    #     sample_width =
-    #
-    #     # Update the audio stream parameters
-    #     stream.stop_stream()
-    #     stream.close()
-    #     stream = p.open(
-    #         format=p.get_format_from_width(sample_width),
-    #         channels=channels,
-    #         rate=sample_rate,
-    #         output=True
-    #     )
-    #     print(f'Updated to buffer size: {buffer_size}, sample rate: {sample_rate}, channels: {channels}, sample width: {sample_width}')
-        
+    buffer_size, sample_rate, channels, sample_width = struct.unpack(HEADER_FORMAT, data[:16])
+    # print(f'Buffer size: {buffer_size}, sample rate: {sample_rate}, channels: {channels}, sample width: {sample_width}')
+    # print(f'received data with size: {len(data)}, next data to recieve size is: {buffer_size * 4 + 16}')
+    # if _buffer_size != buffer_size or _sample_rate != sample_rate or _channels != channels or _sample_width != sample_width:
+        # print(f'Buffer size: {_buffer_size}, sample rate: {_sample_rate}, channels: {_channels}, sample width: {_sample_width}')
+    # if b'\\' in data:
+    #     print(data[data.index(b'{'):data.index(b'}')+1])
+    # if len(data) != buffer_size:
+    #     print(len(data))
+    # try:
+    #     buffer_size, sample_rate, channels, sample_width = struct.unpack(HEADER_FORMAT, data)
+    #     print('Received data:', data)
+    # except:
+    with open('output.txt', 'a') as f:
+        f.write(f'Buffer size: {buffer_size}, sample rate: {sample_rate}, channels: {channels}, sample width: {sample_width}\n')
+    data = data[16:]
     stream.write(data)
-    data = sock.recv(buffer_size)
+    data = sock.recv(buffer_size * 4 + 16)
 
 # Cleanup
 stream.stop_stream()
