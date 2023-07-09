@@ -45,15 +45,42 @@ while data:
     if _sample_rate != sample_rate:
         print(f'Sample rate changed from {sample_rate} to {_sample_rate}')
         sample_rate = _sample_rate
-        # TODO: update current stream with new sample rate
+        # Stop and close the current audio stream
+        stream.stop_stream()
+        stream.close()
+        # Open a new audio stream with the updated sample rate
+        stream = p.open(
+            format=p.get_format_from_width(sample_width),
+            channels=channels,
+            rate=sample_rate,
+            output=True
+        )
     if _channels != channels:
         print(f'Channels changed from {channels} to {_channels}')
         channels = _channels
-        # TODO: update current stream with new number of channels
+        # Stop and close the current audio stream
+        stream.stop_stream()
+        stream.close()
+        # Open a new audio stream with the updated number of channels
+        stream = p.open(
+            format=p.get_format_from_width(sample_width),
+            channels=channels,
+            rate=sample_rate,
+            output=True
+        )
     if _sample_width != sample_width:
         print(f'Sample width changed from {sample_width} to {_sample_width}')
         sample_width = _sample_width
-        # TODO: update current stream with new sample width
+        # Stop and close the current audio stream
+        stream.stop_stream()
+        stream.close()
+        # Open a new audio stream with the updated sample width
+        stream = p.open(
+            format=p.get_format_from_width(sample_width),
+            channels=channels,
+            rate=sample_rate,
+            output=True
+        )
     
     data = data[16:]
     stream.write(data)

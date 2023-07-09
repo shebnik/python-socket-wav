@@ -16,18 +16,19 @@ sock.bind(('localhost', 8000))
 sock.listen(1)
 print('Listening on port 8000...')
 
+is_streaming = True
 new_buffer_size = None
 # Function to handle user input of buffer size or sample rate
 def handle_user_input():
-    global buffer_size, sample_rate, header_data, new_buffer_size
-    while True:
-        option = input("buffer/rate: ")
+    global buffer_size, sample_rate, header_data, new_buffer_size, is_streaming, channels, sample_width
+    while is_streaming:
+        option = input("\nSettings\n1. Buffer\n2. Rate\n3. Channels\n4. Sample Width\n5. Stop\nOption: ")
         if option == "buffer" or option == "b" or option == "1":
             value = input("Enter the new buffer size: ")
             if value.isdigit():
                 new_buffer_size = int(value)
                 header_data = struct.pack(HEADER_FORMAT, new_buffer_size, sample_rate, channels, sample_width)
-                print("Buffer size updated to", buffer_size)
+                print("Buffer size updated to", new_buffer_size)
             else:
                 print("Invalid input. Buffer size unchanged.")
         elif option == "rate" or option == "r" or option == "2":
@@ -38,6 +39,24 @@ def handle_user_input():
                 print("Sample rate updated to", sample_rate)
             else:
                 print("Invalid input. Sample rate unchanged.")
+        elif option == "channels" or option == "c" or option == "3":
+           value = input("Enter the new number of channels: ")
+           if value.isdigit() and value in ["1", "2"]:
+               channels = int(value)
+               header_data = struct.pack(HEADER_FORMAT, buffer_size, sample_rate, channels, sample_width)
+               print("Number of channels updated to", channels)
+           else:
+               print("Invalid input. Number of channels unchanged.")
+        elif option == "sample_width" or option == "s" or option == "4":
+            value = input("Enter the new sample width: ")
+            if value.isdigit():
+                sample_width = int(value)
+                header_data = struct.pack(HEADER_FORMAT, buffer_size, sample_rate, channels, sample_width)
+                print("Sample width updated to", sample_width)
+            else:
+                print("Invalid input. Sample width unchanged.")
+        elif option == "stop" or option == "5":
+            is_streaming = False
                 
 # Start a separate thread to handle user input
 thread = threading.Thread(target=handle_user_input)
@@ -65,7 +84,9 @@ with wave.open('audio.wav', 'rb') as audio_file:
     # Read and stream the audio data
     i = 0
     data = audio_file.readframes(buffer_size)
-    while data:        
+    while data:
+        if is_streaming == False:
+            break        
         # timestamp = time.time()
         # formatted_time = datetime.fromtimestamp(timestamp).strftime('%H:%M:%S:%f')
         # print(str(formatted_time) + ' - ' + str(i))
@@ -86,4 +107,5 @@ with wave.open('audio.wav', 'rb') as audio_file:
 # Close the connection
 conn.close()
 sock.close()
-thread.stop()
+is_streaming = False
+thread.join()
